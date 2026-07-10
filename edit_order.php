@@ -73,9 +73,9 @@ $stmt = $conn->prepare("
     SELECT o.*, c.name as customer_name
     FROM orders o
     LEFT JOIN customers c ON o.customer_id = c.id
-    WHERE o.id = ? AND o.cid = ? AND o.preparedby = ?
+    WHERE o.id = ?
 ");
-$stmt->bind_param("iis", $order_id, $cid, $name);
+$stmt->bind_param("i", $order_id);
 $stmt->execute();
 $order_result = $stmt->get_result();
 
@@ -97,11 +97,11 @@ $stmt = $conn->prepare("
         GROUP_CONCAT(DISTINCT oid.id) as detail_ids
     FROM order_item_detail oid
     LEFT JOIN item_masters im ON oid.item_id = im.id
-    WHERE oid.order_id = ? AND oid.cid = ?
+    WHERE oid.order_id = ?
     GROUP BY oid.item_id, im.item_name
     ORDER BY oid.item_id
 ");
-$stmt->bind_param("ii", $order_id, $cid);
+$stmt->bind_param("i", $order_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -109,10 +109,10 @@ while ($item = $result->fetch_assoc()) {
     // Fetch all rows for this item
     $detail_stmt = $conn->prepare("
         SELECT * FROM order_item_detail 
-        WHERE order_id = ? AND item_id = ? AND cid = ?
+        WHERE order_id = ? AND item_id = ?
         ORDER BY id
     ");
-    $detail_stmt->bind_param("iii", $order_id, $item['item_id'], $cid);
+    $detail_stmt->bind_param("ii", $order_id, $item['item_id']);
     $detail_stmt->execute();
     $detail_result = $detail_stmt->get_result();
     
@@ -151,9 +151,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt = $conn->prepare("
             UPDATE orders 
             SET customer_id = ?, supplier_id = ?, v_date = ?, status = ?, updated_at = NOW()
-            WHERE id = ? AND cid = ? AND preparedby = ?
+            WHERE id = ?
         ");
-        $stmt->bind_param("iissiis", $customer_id, $supplier_id, $v_date, $order_status, $order_id, $cid, $name);
+        $stmt->bind_param("iissi", $customer_id, $supplier_id, $v_date, $order_status, $order_id);
         
         if (!$stmt->execute()) {
             throw new Exception("Failed to update order: " . $stmt->error);
@@ -161,8 +161,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->close();
 
         // Delete all existing order_item_detail for this order
-        $stmt = $conn->prepare("DELETE FROM order_item_detail WHERE order_id = ? AND cid = ?");
-        $stmt->bind_param("ii", $order_id, $cid);
+        $stmt = $conn->prepare("DELETE FROM order_item_detail WHERE order_id = ?");
+        $stmt->bind_param("i", $order_id);
         $stmt->execute();
         $stmt->close();
 
@@ -219,8 +219,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         // Update total quantity
-        $stmt = $conn->prepare("UPDATE orders SET total_qty = ?, updated_at = NOW() WHERE id = ? AND cid = ?");
-        $stmt->bind_param("iii", $totalOrderQty, $order_id, $cid);
+        $stmt = $conn->prepare("UPDATE orders SET total_qty = ?, updated_at = NOW() WHERE id = ?");
+        $stmt->bind_param("ii", $totalOrderQty, $order_id);
         
         if (!$stmt->execute()) {
             throw new Exception("Failed to update order total: " . $stmt->error);
