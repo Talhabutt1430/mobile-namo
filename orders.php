@@ -50,6 +50,7 @@ $status_filter = isset($_GET['status']) ? trim($_GET['status']) : '';
         c.name as customer_name
     FROM orders o
     LEFT JOIN customers c ON o.customer_id = c.id
+    WHERE 1=1
 ";
 
 $params = [];
