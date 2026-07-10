@@ -66,7 +66,7 @@ body { display:flex; justify-content:center; align-items:center; height:100vh; b
         <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
 
-    <form method="POST">
+    <form method="POST" action="login.php">
         <div class="mb-3">
             <label class="form-label">Username</label>
             <input type="text" name="username" class="form-control" required>
