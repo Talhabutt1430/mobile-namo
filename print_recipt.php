@@ -20,10 +20,10 @@ if ($order_id <= 0) die("Invalid Order ID");
 $stmt = $conn->prepare("
     SELECT o.order_no, o.v_date, c.name AS customer_name
     FROM orders o
-    LEFT JOIN customers c ON o.customer_id = c.id AND o.cid = c.cid
-    WHERE o.cid = ? AND o.id = ? AND o.preparedby = ?
+    LEFT JOIN customers c ON o.customer_id = c.id
+    WHERE o.id = ?
 ");
-$stmt->bind_param("iis", $cid, $order_id, $name);
+$stmt->bind_param("i", $order_id);
 $stmt->execute();
 $order = $stmt->get_result()->fetch_assoc();
 $stmt->close();
@@ -33,11 +33,11 @@ if (!$order) die("Order not found");
 $stmt = $conn->prepare("
     SELECT oid.*, im.item_name
     FROM order_item_detail oid
-    LEFT JOIN item_masters im ON oid.item_id = im.id AND oid.cid = im.cid
-    WHERE oid.cid = ? AND oid.order_id = ?
+    LEFT JOIN item_masters im ON oid.item_id = im.id
+    WHERE oid.order_id = ?
     ORDER BY oid.id
 ");
-$stmt->bind_param("ii", $cid, $order_id);
+$stmt->bind_param("i", $order_id);
 $stmt->execute();
 $items_result = $stmt->get_result();
 $items = [];
