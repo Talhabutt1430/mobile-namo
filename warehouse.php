@@ -64,7 +64,7 @@ if ($selected_voucher !== '') {
 }
 
 if ($selected_status !== '') {
-    $query .= " AND o.status = ?";
+    $query .= " AND EXISTS (SELECT 1 FROM order_item_detail oid WHERE oid.order_id = o.id AND oid.item_status = ?)";
     $params[] = $selected_status;
     $types .= "s";
 }

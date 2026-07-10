@@ -87,7 +87,7 @@ if (!empty($sdate)) {
 }
 
 if (!empty($status_filter)) {
-    $query .= " AND o.status = ?";
+    $query .= " AND EXISTS (SELECT 1 FROM order_item_detail oid WHERE oid.order_id = o.id AND oid.item_status = ?)";
     $params[] = $status_filter;
     $param_types .= "s";
 }
