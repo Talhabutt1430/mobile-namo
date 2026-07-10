@@ -9,8 +9,8 @@ if (!isset($_SESSION['cid'])) {
 $cid = $_SESSION['cid'];
 
 $host = "localhost";
-$user = "root";
-$pass = "";
+$user = "realerp_probox";
+$pass = "S@ftix786";
 $db   = "realerp_nano";
 
 try {
