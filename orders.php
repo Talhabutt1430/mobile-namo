@@ -698,7 +698,7 @@ $vouchers_stmt->close();
         // Clear filters when reset button is clicked
         $('#resetBtn').on('click', function(e) {
             e.preventDefault();
-            window.location.href = 'index.php';
+            window.location.href = 'orders.php';
         });
         
         // Hide loading overlay when page is fully loaded
