@@ -1,0 +1,26 @@
+[29-Apr-2026 09:26:10 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'root'@'localhost' (using password: NO) in /home/realerp/public_html/mobilenamo.real-erp.net/db.php:8
+Stack trace:
+#0 /home/realerp/public_html/mobilenamo.real-erp.net/db.php(8): mysqli->__construct()
+#1 /home/realerp/public_html/mobilenamo.real-erp.net/create.php(3): require_once('/home/realerp/p...')
+#2 {main}
+  thrown in /home/realerp/public_html/mobilenamo.real-erp.net/db.php on line 8
+[29-Apr-2026 09:33:44 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'oid.order_id' in 'field list' in /home/realerp/public_html/mobilenamo.real-erp.net/orders.php:142
+Stack trace:
+#0 /home/realerp/public_html/mobilenamo.real-erp.net/orders.php(142): mysqli->prepare()
+#1 {main}
+  thrown in /home/realerp/public_html/mobilenamo.real-erp.net/orders.php on line 142
+[29-Apr-2026 09:33:47 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'oid.order_id' in 'field list' in /home/realerp/public_html/mobilenamo.real-erp.net/orders.php:142
+Stack trace:
+#0 /home/realerp/public_html/mobilenamo.real-erp.net/orders.php(142): mysqli->prepare()
+#1 {main}
+  thrown in /home/realerp/public_html/mobilenamo.real-erp.net/orders.php on line 142
+[29-Apr-2026 09:34:19 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'oid.order_id' in 'field list' in /home/realerp/public_html/mobilenamo.real-erp.net/orders.php:142
+Stack trace:
+#0 /home/realerp/public_html/mobilenamo.real-erp.net/orders.php(142): mysqli->prepare()
+#1 {main}
+  thrown in /home/realerp/public_html/mobilenamo.real-erp.net/orders.php on line 142
+[29-Apr-2026 09:34:27 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'oid.order_id' in 'field list' in /home/realerp/public_html/mobilenamo.real-erp.net/orders.php:142
+Stack trace:
+#0 /home/realerp/public_html/mobilenamo.real-erp.net/orders.php(142): mysqli->prepare()
+#1 {main}
+  thrown in /home/realerp/public_html/mobilenamo.real-erp.net/orders.php on line 142

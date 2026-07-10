@@ -1,0 +1,3 @@
+Role	Mobile	Password
+Admin	03331234567	admin123
+Warehouse	03330000001	ware123
