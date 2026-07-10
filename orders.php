@@ -49,7 +49,7 @@ $status_filter = isset($_GET['status']) ? trim($_GET['status']) : '';
         c.id as customer_id,
         c.name as customer_name
     FROM orders o
-    LEFT JOIN customers c ON o.customer_id = c.id AND o.cid = c.cid
+    LEFT JOIN customers c ON o.customer_id = c.id
 ";
 
 $params = [];

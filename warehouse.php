@@ -45,7 +45,7 @@ $selected_status = isset($_GET['status']) ? trim($_GET['status']) : '';
     SELECT o.id, o.order_no, o.v_date, o.total_qty, o.status,
            c.name AS customer_name
     FROM orders o
-    LEFT JOIN customers c ON o.customer_id = c.id AND o.cid = c.cid
+    LEFT JOIN customers c ON o.customer_id = c.id
     WHERE o.cid = ?
 ";
 $params = [$cid];
