@@ -143,7 +143,7 @@ if (!empty($orders)) {
             oid.item_status,
             im.item_name
         FROM order_item_detail oid
-        LEFT JOIN item_masters im ON oid.item_id = im.id AND oid.cid = im.cid
+        LEFT JOIN item_masters im ON oid.item_id = im.id
         WHERE oid.order_id IN ($placeholders)
         ORDER BY oid.id
     ";
