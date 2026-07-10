@@ -15,8 +15,7 @@ $name = $_SESSION['name'];
 
 // Fetch customers for filter
 $customers = [];
-$stmt = $conn->prepare("SELECT id, name FROM customers WHERE cid = ? ORDER BY name");
-$stmt->bind_param("i", $cid);
+$stmt = $conn->prepare("SELECT id, name FROM customers ORDER BY name");
 $stmt->execute();
 $result = $stmt->get_result();
 while ($row = $result->fetch_assoc()) {
@@ -26,8 +25,7 @@ $stmt->close();
 
 // Fetch voucher numbers for filter
 $vouchers = [];
-$stmt = $conn->prepare("SELECT DISTINCT order_no FROM orders WHERE cid = ? ORDER BY order_no DESC");
-$stmt->bind_param("i", $cid);
+$stmt = $conn->prepare("SELECT DISTINCT order_no FROM orders ORDER BY order_no DESC");
 $stmt->execute();
 $result = $stmt->get_result();
 while ($row = $result->fetch_assoc()) {
@@ -46,10 +44,10 @@ $selected_status = isset($_GET['status']) ? trim($_GET['status']) : '';
            c.name AS customer_name
     FROM orders o
     LEFT JOIN customers c ON o.customer_id = c.id
-    WHERE o.cid = ?
+    WHERE 1=1
 ";
-$params = [$cid];
-$types = "i";
+$params = [];
+$types = "";
 
 if ($selected_customer > 0) {
     $query .= " AND o.customer_id = ?";
@@ -94,13 +92,13 @@ if (!empty($orders)) {
     $items_query = "
         SELECT oid.id, oid.order_id, oid.total_qty, oid.item_status, oid.color, oid.cup, im.item_name
         FROM order_item_detail oid
-        LEFT JOIN item_masters im ON oid.item_id = im.id AND oid.cid = im.cid
-        WHERE oid.cid = ? AND oid.order_id IN ($placeholders)
+        LEFT JOIN item_masters im ON oid.item_id = im.id
+        WHERE oid.order_id IN ($placeholders)
         ORDER BY oid.id
     ";
     $stmt = $conn->prepare($items_query);
-    $bind_params = array_merge([$cid], $order_ids);
-    $types = "i" . str_repeat('i', count($order_ids));
+    $bind_params = $order_ids;
+    $types = str_repeat('i', count($order_ids));
     $stmt->bind_param($types, ...$bind_params);
     $stmt->execute();
     $items_result = $stmt->get_result();
