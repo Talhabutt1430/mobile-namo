@@ -6,8 +6,8 @@ session_start();
 ================================ */
 $pdo = new PDO(
     "mysql:host=localhost;dbname=realerp_nano;charset=utf8mb4",
-    "realerp_probox",
-    "S@ftix786",
+    "root",
+    "",
     [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC

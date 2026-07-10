@@ -14,8 +14,8 @@ session_start();
    DATABASE CONNECTION
 ================================ */
 $host = "localhost";
-$user = "realerp_probox";
-$pass = "S@ftix786";
+$user = "root";
+$pass = "";
 $db   = "realerp_nano";
 
 try {

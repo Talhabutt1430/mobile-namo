@@ -50,11 +50,10 @@ $status_filter = isset($_GET['status']) ? trim($_GET['status']) : '';
         c.name as customer_name
     FROM orders o
     LEFT JOIN customers c ON o.customer_id = c.id AND o.cid = c.cid
-    WHERE o.cid = ? AND o.preparedby = ?
 ";
 
-$params = [$cid, $name];
-$param_types = "is";
+$params = [];
+$param_types = "";
 
 // Add filters
 if (!empty($voucher_no)) {
@@ -518,11 +517,10 @@ $vouchers_stmt->close();
                 <th>Order No</th>
                 <th>Date</th>
                 <th>Customer</th>
-                <th>Status</th>
                 <th>Article</th>
                 <th>Cup</th>
                 <th>Color</th>
-                <th>Status</th>
+                <th>Item Status</th>
                 <th>32</th><th>34</th><th>36</th><th>38</th><th>40</th><th>42</th>
                 <th>44</th><th>46</th><th>48</th><th>50</th>
                 <th>Total</th>
@@ -613,9 +611,6 @@ $vouchers_stmt->close();
                     <?php endfor; ?>
                     
                 <?php else: ?>
-                    <tr class="<?= ($orderCount === 0) ? 'order-group-first' : 'order-group-separator' ?>">
-                        <td colspan="19" style="text-align: center; color: #94a3b8;">— No items for order #<?= htmlspecialchars($order['order_no']) ?> —</td>
-                    </tr>
                     <?php $orderCount++; ?>
                 <?php endif; ?>
             <?php endforeach; ?>

@@ -278,7 +278,7 @@ if (!empty($orders)) {
                         </tbody>
                     </table>
                 </div>
-                <p class="text-muted">Total: <?= $total_orders ?> orders</p>
+                <p class="text-muted">Total items: <?= $total_items ?></p>
             <?php endif; ?>
         </div>
     </div>

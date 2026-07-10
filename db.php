@@ -1,7 +1,7 @@
 <?php
 $servername = "localhost";
-$username = "realerp_probox";
-$password = "S@ftix786";
+$username = "root";
+$password = "";
 $dbname = "realerp_nano";
 
 // Create connection
