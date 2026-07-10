@@ -144,8 +144,7 @@ if (!empty($orders)) {
             im.item_name
         FROM order_item_detail oid
         LEFT JOIN item_masters im ON oid.item_id = im.id AND oid.cid = im.cid
-        WHERE oid.cid = ?
-        AND oid.order_id IN ($placeholders)
+        WHERE oid.order_id IN ($placeholders)
         ORDER BY oid.id
     ";
 
@@ -154,8 +153,8 @@ if (!empty($orders)) {
         die("Items query failed: " . $conn->error);
     }
 
-    $bind_params = array_merge([$cid], $order_ids);
-    $types = "i" . $param_types;
+    $bind_params = $order_ids;
+    $types = $param_types;
     $stmt->bind_param($types, ...$bind_params);
 
     if (!$stmt->execute()) {
@@ -175,11 +174,10 @@ if (!empty($orders)) {
 }
 
 // Fetch customers for filter dropdown
-$customers_stmt = $conn->prepare("SELECT id, name FROM customers WHERE cid = ? ORDER BY name");
+$customers_stmt = $conn->prepare("SELECT id, name FROM customers ORDER BY name");
 if ($customers_stmt === false) {
     die("Customers query preparation failed: " . $conn->error);
 }
-$customers_stmt->bind_param("i", $cid);
 if (!$customers_stmt->execute()) {
     die("Customers execute failed: " . $customers_stmt->error);
 }
@@ -194,11 +192,10 @@ while ($customer = $customers_result->fetch_assoc()) {
 $customers_stmt->close();
 
 // Fetch voucher numbers for filter dropdown
-$vouchers_stmt = $conn->prepare("SELECT DISTINCT order_no FROM orders WHERE cid = ? AND preparedby = ? ORDER BY order_no DESC");
+$vouchers_stmt = $conn->prepare("SELECT DISTINCT order_no FROM orders ORDER BY order_no DESC");
 if ($vouchers_stmt === false) {
     die("Vouchers query preparation failed: " . $conn->error);
 }
-$vouchers_stmt->bind_param("is", $cid, $name);
 if (!$vouchers_stmt->execute()) {
     die("Vouchers execute failed: " . $vouchers_stmt->error);
 }
