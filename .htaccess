@@ -1,1 +1,2 @@
 DirectoryIndex login.php
+Redirect 301 /schooltheme /login.php
