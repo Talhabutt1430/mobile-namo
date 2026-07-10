@@ -14,8 +14,7 @@ $customers = [];
 $items = [];
 
 try {
-    $stmt = $conn->prepare("SELECT id, name FROM customers WHERE cid = ?");
-    $stmt->bind_param("i", $cid);
+    $stmt = $conn->prepare("SELECT id, name FROM customers ORDER BY name");
     $stmt->execute();
     $customers_result = $stmt->get_result();
     while ($row = $customers_result->fetch_assoc()) {
@@ -23,8 +22,7 @@ try {
     }
     $stmt->close();
 
-    $stmt = $conn->prepare("SELECT id, item_name FROM item_masters WHERE cid = ?");
-    $stmt->bind_param("i", $cid);
+    $stmt = $conn->prepare("SELECT id, item_name FROM item_masters ORDER BY item_name");
     $stmt->execute();
     $items_result = $stmt->get_result();
     while ($row = $items_result->fetch_assoc()) {
@@ -32,7 +30,7 @@ try {
     }
     $stmt->close();
 
-    $stmt = $conn->prepare("SELECT id, name, company_name FROM suppliers WHERE cid = ? ORDER BY name");
+    $stmt = $conn->prepare("SELECT id, name, company_name FROM suppliers ORDER BY name");
     $stmt->bind_param("i", $cid);
     $stmt->execute();
     $suppliers_result = $stmt->get_result();

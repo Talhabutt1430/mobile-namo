@@ -29,8 +29,7 @@ $sizes_group2 = ['44', '46', '48', '50'];
 
 // Fetch customers
 $customers = [];
-$stmt = $conn->prepare("SELECT id, name FROM customers WHERE cid = ? ORDER BY name");
-$stmt->bind_param("i", $cid);
+$stmt = $conn->prepare("SELECT id, name FROM customers ORDER BY name");
 $stmt->execute();
 $result = $stmt->get_result();
 while ($row = $result->fetch_assoc()) {
@@ -40,8 +39,7 @@ $stmt->close();
 
 // Fetch items
 $items = [];
-$stmt = $conn->prepare("SELECT id, item_name FROM item_masters WHERE cid = ? ORDER BY item_name");
-$stmt->bind_param("i", $cid);
+$stmt = $conn->prepare("SELECT id, item_name FROM item_masters ORDER BY item_name");
 $stmt->execute();
 $result = $stmt->get_result();
 while ($row = $result->fetch_assoc()) {
@@ -51,8 +49,7 @@ $stmt->close();
 
 // Fetch suppliers
 $suppliers = [];
-$stmt = $conn->prepare("SELECT id, name, company_name FROM suppliers WHERE cid = ? ORDER BY name");
-$stmt->bind_param("i", $cid);
+$stmt = $conn->prepare("SELECT id, name, company_name FROM suppliers ORDER BY name");
 $stmt->execute();
 $result = $stmt->get_result();
 while ($row = $result->fetch_assoc()) {
