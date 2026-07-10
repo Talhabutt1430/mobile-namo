@@ -85,6 +85,7 @@ if ($order_result->num_rows === 0) {
     exit();
 }
 
+$redirect_from = isset($_GET['from']) ? $_GET['from'] : 'admin';
 $order = $order_result->fetch_assoc();
 $stmt->close();
 
@@ -231,10 +232,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmtDetail->close();
         $stmt->close();
 
+        $redirect_page = ($redirect_from === 'warehouse') ? 'warehouse.php' : 'orders.php';
         echo json_encode([
             'success' => true,
             'message' => "Order #{$order['order_no']} updated successfully!",
-            'redirect' => 'orders.php'
+            'redirect' => $redirect_page
         ]);
         exit;
 
@@ -403,7 +405,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <h3 class="mb-0">
                     <i class="bi bi-pencil-square"></i> Edit Order #<?= htmlspecialchars($order['order_no']) ?>
                 </h3>
-                <a href="orders.php" class="btn btn-light btn-sm mt-2 mt-md-0">
+                <a href="<?= ($redirect_from === 'warehouse') ? 'warehouse.php' : 'orders.php' ?>" class="btn btn-light btn-sm mt-2 mt-md-0">
                     <i class="bi bi-arrow-left"></i> Back to Orders
                 </a>
             </div>
@@ -609,7 +611,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 <!-- Form Actions -->
                 <div class="d-flex justify-content-between gap-2 flex-wrap">
-                    <a href="orders.php" class="btn btn-secondary px-4">
+                    <a href="<?= ($redirect_from === 'warehouse') ? 'warehouse.php' : 'orders.php' ?>" class="btn btn-secondary px-4">
                         <i class="bi bi-x-circle"></i> Cancel
                     </a>
                     <button type="submit" class="btn btn-success px-5" id="submitBtn">
