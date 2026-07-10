@@ -31,7 +31,6 @@ try {
     $stmt->close();
 
     $stmt = $conn->prepare("SELECT id, name, company_name FROM suppliers ORDER BY name");
-    $stmt->bind_param("i", $cid);
     $stmt->execute();
     $suppliers_result = $stmt->get_result();
     $suppliers = [];
