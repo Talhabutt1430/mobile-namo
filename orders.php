@@ -544,7 +544,7 @@ $vouchers_stmt->close();
                             <?= htmlspecialchars(date('d/m/Y', strtotime($order['v_date']))) ?>
                         </td>
                         <td rowspan="<?= $rowspan ?>" style="vertical-align: middle;">
-                            <?= htmlspecialchars($order['customer_name']) ?>
+                            <?= htmlspecialchars($order['customer_name'] ?? '-') ?>
                         </td>
                         <td style="text-align: left;"><?= htmlspecialchars($firstItem['item_name'] ?? 'N/A') ?></td>
                         <td><?= htmlspecialchars($firstItem['cup'] ?? '-') ?></td>
