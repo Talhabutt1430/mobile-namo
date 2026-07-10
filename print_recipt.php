@@ -14,6 +14,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['cid'])) {
 $cid      = $_SESSION['cid'];
 $name     = $_SESSION['name'];
 $order_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+$from     = isset($_GET['from']) ? $_GET['from'] : 'admin';
 if ($order_id <= 0) die("Invalid Order ID");
 
 // ── Order master ──────────────────────────────────────────────
@@ -181,7 +182,7 @@ $sizes = ['32','34','36','38','40','42','44','46','48','50'];
 <!-- Controls (screen only) -->
 <div class="no-print">
     <button class="btn-print" onclick="window.print()">🖨️ Print Receipt</button>
-    <a class="btn-back" href="index.php">← Back</a>
+    <a class="btn-back" href="<?= ($from === 'warehouse') ? 'warehouse.php' : 'orders.php' ?>">← Back</a>
     <p style="margin-top:8px;color:#666;font-size:12px;">
         Receipt preview for Order #<?= htmlspecialchars($order['order_no']) ?>
     </p>

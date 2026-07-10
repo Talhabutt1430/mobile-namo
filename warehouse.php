@@ -264,7 +264,7 @@ if (!empty($orders)) {
                                 </td>
                                 <td>
                                     <a href="edit_order.php?id=<?= $order['id'] ?>&from=warehouse" class="btn btn-sm btn-primary">View/Edit</a>
-                                    <a href="print_recipt.php?id=<?= $order['id'] ?>" class="btn btn-sm btn-outline-secondary">Print</a>
+                                    <a href="print_recipt.php?id=<?= $order['id'] ?>&from=warehouse" class="btn btn-sm btn-outline-secondary">Print</a>
                                     <form method="POST" action="order_delete.php" style="display:inline" onsubmit="return confirm('Delete order #<?= $order['order_no'] ?>?')">
                                         <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
                                         <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
