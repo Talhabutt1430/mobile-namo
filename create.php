@@ -797,11 +797,68 @@ $(document).ready(function() {
         }
     });
     
+    $('.select2-customer').select2({
+        placeholder: 'Search and select customer...',
+        allowClear: true,
+        minimumInputLength: 1,
+        ajax: {
+            url: 'customers_search.php',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term
+                };
+            },
+            processResults: function (data) {
+                return {
+                    results: data.map(function(item) {
+                        return {
+                            id: item.id,
+                            text: item.name + ' (' + item.mobile + ')'
+                        };
+                    })
+                };
+            },
+            cache: true
+        },
+        escapeMarkup: function (markup) {
+            return markup;
+        }
+    });
+    
     $('.select2-customer').on('change', function() {
         if ($(this).val()) {
             $(this).removeClass('is-invalid');
         }
     });
+    
+    function loadCustomers() {
+        $.ajax({
+            url: 'customers_search.php',
+            method: 'GET',
+            dataType: 'json',
+            success: function(customers) {
+                var selectElement = $('.select2-customer');
+                selectElement.empty();
+                if (customers.length === 0) {
+                    selectElement.append('<option value="">No customers found</option>');
+                } else {
+                    selectElement.append('<option value="">-- Select Customer --</option>');
+                    customers.forEach(function(customer) {
+                        selectElement.append('<option value="' + customer.id + '">' + customer.name + ' (' + customer.mobile + ')</option>');
+                    });
+                }
+                selectElement.trigger('change.select2');
+            },
+            error: function(xhr) {
+                console.error('Error loading customers:', xhr.status, xhr.statusText);
+            }
+        });
+    }
+    
+    // Load all customers on page load
+    loadCustomers();
     
     // Add first item on load
     addItem();
