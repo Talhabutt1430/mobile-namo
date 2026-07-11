@@ -959,17 +959,58 @@ $(document).ready(function() {
         });
     });
     
+    // Real-time validation for date
     $('input[name="v_date"]').on('change', function() {
         if ($(this).val()) {
             $(this).removeClass('is-invalid');
         }
     });
     
+    // Customer dropdown change validation
     $('.select2-customer').on('change', function() {
         if ($(this).val()) {
             $(this).removeClass('is-invalid');
         }
     });
+    
+    // Initialize customer Select2 with AJAX search like create.php
+    $('.select2-customer').select2({
+        placeholder: 'Search and select customer...',
+        allowClear: true,
+        minimumInputLength: 1,
+        ajax: {
+            url: 'customers_search.php',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term
+                };
+            },
+            processResults: function (data) {
+                return {
+                    results: data.map(function(item) {
+                        return {
+                            id: item.id,
+                            text: item.name + ' (' + item.mobile + ')'
+                        };
+                    })
+                };
+            },
+            cache: true
+        },
+        escapeMarkup: function (markup) {
+            return markup;
+        }
+    });
+    
+    // Pre-select the current customer
+    setTimeout(function() {
+        var selectedCustomerId = "<?= $order['customer_id'] ?>";
+        if (selectedCustomerId) {
+            $('.select2-customer').val(selectedCustomerId).trigger('change.select2');
+        }
+    }, 500);
 });
 </script>
 </body>
