@@ -827,38 +827,20 @@ $(document).ready(function() {
         }
     });
     
+    // Load all customers on page load
+    loadCustomers();
+    
+    function loadCustomers() {
+        // This function is now kept for reference
+        // The customer dropdown is populated via Select2 AJAX search
+    }
+    
+    // Customer dropdown change handler
     $('.select2-customer').on('change', function() {
         if ($(this).val()) {
             $(this).removeClass('is-invalid');
         }
     });
-    
-    function loadCustomers() {
-        $.ajax({
-            url: 'customers_search.php',
-            method: 'GET',
-            dataType: 'json',
-            success: function(customers) {
-                var selectElement = $('.select2-customer');
-                selectElement.empty();
-                if (customers.length === 0) {
-                    selectElement.append('<option value="">No customers found</option>');
-                } else {
-                    selectElement.append('<option value="">-- Select Customer --</option>');
-                    customers.forEach(function(customer) {
-                        selectElement.append('<option value="' + customer.id + '">' + customer.name + ' (' + customer.mobile + ')</option>');
-                    });
-                }
-                selectElement.trigger('change.select2');
-            },
-            error: function(xhr) {
-                console.error('Error loading customers:', xhr.status, xhr.statusText);
-            }
-        });
-    }
-    
-    // Load all customers on page load
-    loadCustomers();
     
     // Add first item on load
     addItem();
