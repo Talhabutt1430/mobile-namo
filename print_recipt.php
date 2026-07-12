@@ -22,9 +22,9 @@ $stmt = $conn->prepare("
     SELECT o.order_no, o.v_date, c.name AS customer_name
     FROM orders o
     LEFT JOIN customers c ON o.customer_id = c.id
-    WHERE o.id = ?
+    WHERE o.id = ? AND o.cid = ?
 ");
-$stmt->bind_param("i", $order_id);
+$stmt->bind_param("ii", $order_id, $cid);
 $stmt->execute();
 $order = $stmt->get_result()->fetch_assoc();
 $stmt->close();
@@ -35,10 +35,10 @@ $stmt = $conn->prepare("
     SELECT oid.*, im.item_name
     FROM order_item_detail oid
     LEFT JOIN item_masters im ON oid.item_id = im.id
-    WHERE oid.order_id = ?
+    WHERE oid.order_id = ? AND oid.cid = ?
     ORDER BY oid.id
 ");
-$stmt->bind_param("i", $order_id);
+$stmt->bind_param("ii", $order_id, $cid);
 $stmt->execute();
 $items_result = $stmt->get_result();
 $items = [];

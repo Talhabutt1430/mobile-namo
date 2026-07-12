@@ -22,13 +22,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $conn->begin_transaction();
 
     try {
-        $stmt = $conn->prepare("DELETE FROM order_item_detail WHERE order_id = ?");
-        $stmt->bind_param("i", $order_id);
+        $stmt = $conn->prepare("DELETE FROM order_item_detail WHERE order_id = ? AND cid = ?");
+        $stmt->bind_param("ii", $order_id, $cid);
         $stmt->execute();
         $stmt->close();
 
-        $stmt = $conn->prepare("DELETE FROM orders WHERE id = ?");
-        $stmt->bind_param("i", $order_id);
+        $stmt = $conn->prepare("DELETE FROM orders WHERE id = ? AND cid = ?");
+        $stmt->bind_param("ii", $order_id, $cid);
         $stmt->execute();
 
         if ($stmt->affected_rows === 0) {
