@@ -251,11 +251,11 @@ if (!empty($orders)) {
                                 <th>Order #</th>
                                 <th>Date</th>
                                 <th>Customer</th>
+                                <th>Status</th>
                                 <th>Article</th>
                                 <th>Color</th>
                                 <th>Cup</th>
                                 <th>Qty</th>
-                                <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -266,15 +266,15 @@ if (!empty($orders)) {
                                 <td><strong>#<?= htmlspecialchars($order['order_no']) ?></strong></td>
                                 <td><?= htmlspecialchars(date('d/m/Y', strtotime($order['v_date']))) ?></td>
                                 <td><?= htmlspecialchars($order['customer_name'] ?? '-') ?></td>
+                                <td>
+                                    <span class="badge badge-status status-<?= $order['status'] ?? 'pending' ?>">
+                                        <?= ucfirst($order['status'] ?? 'pending') ?>
+                                    </span>
+                                </td>
                                 <td><?= htmlspecialchars($it['item_name'] ?? '-') ?></td>
                                 <td><?= htmlspecialchars($it['color'] ?? '-') ?></td>
                                 <td><?= htmlspecialchars($it['cup'] ?? '-') ?></td>
                                 <td><?= (int)$it['total_qty'] ?></td>
-                                <td>
-                                    <span class="badge badge-status status-<?= $it['item_status'] ?? 'pending' ?>">
-                                        <?= ucfirst($it['item_status'] ?? 'pending') ?>
-                                    </span>
-                                </td>
                                 <td>
                                     <a href="edit_order.php?id=<?= $order['id'] ?>&from=warehouse" class="btn btn-sm btn-primary">View/Edit</a>
                                     <a href="print_recipt.php?id=<?= $order['id'] ?>&from=warehouse" class="btn btn-sm btn-outline-secondary">Print</a>
