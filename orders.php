@@ -292,6 +292,9 @@ $vouchers_stmt->close();
                         <a href="create.php" class="btn btn-primary">
                             <i class="bi bi-plus-circle"></i> Create New Order
                         </a>
+                        <a href="items.php" class="btn btn-outline-info">
+                            <i class="bi bi-box-seam-fill"></i> Items
+                        </a>
                         <a href="colors.php" class="btn btn-outline-secondary">
                             <i class="bi bi-palette-fill"></i> Colors
                         </a>

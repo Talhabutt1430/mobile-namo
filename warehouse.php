@@ -134,6 +134,9 @@ if (!empty($orders)) {
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="bi bi-house-gear-fill"></i> Warehouse Dashboard</h2>
         <div>
+            <a href="items.php" class="btn btn-outline-info btn-sm me-2">
+                <i class="bi bi-box-seam-fill"></i> Items
+            </a>
             <span class="me-3">Welcome, <?= htmlspecialchars($name) ?></span>
             <a href="logout.php" class="btn btn-outline-danger btn-sm">Logout</a>
         </div>
