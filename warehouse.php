@@ -100,7 +100,10 @@ if (!empty($orders)) {
     $order_ids = array_keys($orders);
     $placeholders = implode(',', array_fill(0, count($order_ids), '?'));
     $items_query = "
-        SELECT oid.id, oid.order_id, oid.total_qty, oid.item_status, oid.color, oid.cup, im.item_name
+        SELECT oid.id, oid.order_id, 
+               oid.size_32, oid.size_34, oid.size_36, oid.size_38, oid.size_40, oid.size_42,
+               oid.size_44, oid.size_46, oid.size_48, oid.size_50,
+               oid.total_qty, oid.item_status, oid.color, oid.cup, im.item_name
         FROM order_item_detail oid
         LEFT JOIN item_masters im ON oid.item_id = im.id
         WHERE oid.order_id IN ($placeholders)
@@ -244,7 +247,7 @@ if (!empty($orders)) {
                     <h4 class="mt-3">No orders found</h4>
                 </div>
             <?php else: ?>
-                <div class="table-responsive">
+<div class="table-responsive">
                     <table class="table table-hover">
                         <thead class="table-dark">
                             <tr>
@@ -253,38 +256,58 @@ if (!empty($orders)) {
                                 <th>Customer</th>
                                 <th>Status</th>
                                 <th>Article</th>
-                                <th>Color</th>
                                 <th>Cup</th>
-                                <th>Qty</th>
+                                <th>Color</th>
+                                <th>32</th>
+                                <th>34</th>
+                                <th>36</th>
+                                <th>38</th>
+                                <th>40</th>
+                                <th>42</th>
+                                <th>44</th>
+                                <th>46</th>
+                                <th>48</th>
+                                <th>50</th>
+                                <th>Total</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($orders as $order): ?>
                                 <?php foreach ($order['items'] as $it): ?>
-                            <tr>
-                                <td><strong>#<?= htmlspecialchars($order['order_no']) ?></strong></td>
-                                <td><?= htmlspecialchars(date('d/m/Y', strtotime($order['v_date']))) ?></td>
-                                <td><?= htmlspecialchars($order['customer_name'] ?? '-') ?></td>
-                                <td>
-                                    <span class="badge badge-status status-<?= $order['status'] ?? 'pending' ?>">
-                                        <?= ucfirst($order['status'] ?? 'pending') ?>
-                                    </span>
-                                </td>
-                                <td><?= htmlspecialchars($it['item_name'] ?? '-') ?></td>
-                                <td><?= htmlspecialchars($it['color'] ?? '-') ?></td>
-                                <td><?= htmlspecialchars($it['cup'] ?? '-') ?></td>
-                                <td><?= (int)$it['total_qty'] ?></td>
-                                <td>
-                                    <a href="edit_order.php?id=<?= $order['id'] ?>&from=warehouse" class="btn btn-sm btn-primary">View/Edit</a>
-                                    <a href="print_recipt.php?id=<?= $order['id'] ?>&from=warehouse" class="btn btn-sm btn-outline-secondary">Print</a>
-                                    <form method="POST" action="order_delete.php" style="display:inline" onsubmit="return confirm('Delete order #<?= $order['order_no'] ?>?')">
-                                        <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
+                                <tr>
+                                    <td><strong>#<?= htmlspecialchars($order['order_no']) ?></strong></td>
+                                    <td><?= htmlspecialchars(date('d/m/Y', strtotime($order['v_date']))) ?></td>
+                                    <td><?= htmlspecialchars($order['customer_name'] ?? '-') ?></td>
+                                    <td>
+                                        <span class="badge badge-status status-<?= $order['status'] ?? 'pending' ?>">
+                                            <?= ucfirst($order['status'] ?? 'pending') ?>
+                                        </span>
+                                    </td>
+                                    <td><?= htmlspecialchars($it['item_name'] ?? '-') ?></td>
+                                    <td><?= htmlspecialchars($it['cup'] ?? '-') ?></td>
+                                    <td><?= htmlspecialchars($it['color'] ?? '-') ?></td>
+                                    <td class="text-center"><?= (int)($it['size_32'] ?? 0) ?></td>
+                                    <td class="text-center"><?= (int)($it['size_34'] ?? 0) ?></td>
+                                    <td class="text-center"><?= (int)($it['size_36'] ?? 0) ?></td>
+                                    <td class="text-center"><?= (int)($it['size_38'] ?? 0) ?></td>
+                                    <td class="text-center"><?= (int)($it['size_40'] ?? 0) ?></td>
+                                    <td class="text-center"><?= (int)($it['size_42'] ?? 0) ?></td>
+                                    <td class="text-center"><?= (int)($it['size_44'] ?? 0) ?></td>
+                                    <td class="text-center"><?= (int)($it['size_46'] ?? 0) ?></td>
+                                    <td class="text-center"><?= (int)($it['size_48'] ?? 0) ?></td>
+                                    <td class="text-center"><?= (int)($it['size_50'] ?? 0) ?></td>
+                                    <td class="text-center fw-bold"><?= (int)$it['total_qty'] ?></td>
+                                    <td>
+                                        <a href="edit_order.php?id=<?= $order['id'] ?>&from=warehouse" class="btn btn-sm btn-primary">View/Edit</a>
+                                        <a href="print_recipt.php?id=<?= $order['id'] ?>&from=warehouse" class="btn btn-sm btn-outline-secondary">Print</a>
+                                        <form method="POST" action="order_delete.php" style="display:inline" onsubmit="return confirm('Delete order #<?= $order['order_no'] ?>?')">
+                                            <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
