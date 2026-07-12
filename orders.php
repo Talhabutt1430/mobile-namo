@@ -14,10 +14,12 @@ session_start();
 
 
 
+
 // Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
+
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['cid'])) {
@@ -156,21 +158,22 @@ if (!empty($orders)) {
         WHERE oid.order_id IN ($placeholders)
         ORDER BY oid.id
     ";
-
     $stmt = $conn->prepare($items_query);
     if ($stmt === false) {
-        die("Items query failed: " . $conn->error);
+        die("Items query preparation failed: " . $conn->error);
     }
 
-    $bind_params = $order_ids;
-    $types = $param_types;
-    $stmt->bind_param($types, ...$bind_params);
+    $stmt->bind_param($param_types, ...$order_ids);
 
     if (!$stmt->execute()) {
         die("Items execute failed: " . $stmt->error);
     }
 
     $items_result = $stmt->get_result();
+    if (!$items_result) {
+        die("Items get result failed: " . $stmt->error);
+    }
+
     $order_items = [];
     while ($item = $items_result->fetch_assoc()) {
         $order_items[$item['order_id']][] = $item;
@@ -214,72 +217,185 @@ $vouchers_result = $vouchers_stmt->get_result();
 if (!$vouchers_result) {
     die("Vouchers get result failed: " . $vouchers_stmt->error);
 }
-$voucher_nos = [];
+$vouchers = [];
 while ($voucher = $vouchers_result->fetch_assoc()) {
-    $voucher_nos[] = $voucher['order_no'];
+    $vouchers[] = $voucher['order_no'];
 }
 $vouchers_stmt->close();
-?>
 
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sale Orders</title>
+    <title>Sale Orders - Hashmi Brothers</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
-        .table thead th {
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --success-color: #198754;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #0dcaf0;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-card {
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.08);
+            border: none;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #0a58ca 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .user-badge {
+            font-size: 0.75rem;
+        }
+
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .table th {
             background-color: #f8f9fa;
             border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            color: var(--secondary-color);
+            padding: 12px 15px;
         }
+
+        .table td {
+            padding: 12px 15px;
+            vertical-align: middle;
+        }
+
+        .table tbody tr {
+            transition: all 0.2s;
+        }
+
         .table tbody tr:hover {
-            background-color: rgba(0, 123, 255, 0.05);
+            background-color: #f8f9fa;
         }
-        .rowspan-cell {
-            vertical-align: middle !important;
+
+        .order-row {
+            cursor: pointer;
         }
-        .filter-card {
-            border-left: 4px solid #0d6efd;
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
         }
-        .badge-order {
-            font-size: 0.9em;
+
+        .status-pending { background-color: #fff3cd; color: #856404; }
+        .status-completed { background-color: #d1e7dd; color: #0f5132; }
+        .status-rejected { background-color: #f8d7da; color: #842029; }
+
+        .btn-action {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            transition: all 0.2s;
         }
-        .action-buttons {
-            min-width: 150px;
+
+        .btn-action:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
-        .error-message {
-            color: #dc3545;
-            font-size: 0.875em;
-            margin-top: 0.25rem;
+
+        .voucher-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
         }
+
+        .voucher-link:hover {
+            color: #0a58ca;
+            text-decoration: underline;
+        }
+
+        .filter-select {
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .filter-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+        }
+
+        .page-header h2 {
+            font-weight: 700;
+            color: #212529;
+        }
+
+        .user-badge {
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 768px) {
+            .table-responsive {
+                font-size: 0.85rem;
+            }
+            
+            .btn-action {
+                padding: 4px 8px;
+                font-size: 0.75rem;
+            }
+        }
+
         .loading-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.8);
-            display: none;
+            background: rgba(255,255,255,0.9);
+            display: flex;
             justify-content: center;
             align-items: center;
             z-index: 9999;
         }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+
+        .grand-total {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .grand-total-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
     </style>
 </head>
-<!-- Select2 CSS -->
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-
-<!-- Optional: Select2 Bootstrap theme -->
-<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.5.2/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
-
 <body>
     <!-- Loading overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
         <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
         </div>
@@ -293,9 +409,14 @@ $vouchers_stmt->close();
                     <h2 class="mb-0">
                         <i class="bi bi-cart-check me-2"></i>Sale Orders
                     </h2>
-                    <div>
-                   
-
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <span class="text-muted small">
+                            <?= htmlspecialchars($user_name) ?> 
+                            <span class="badge bg-<?= $user_role === 'admin' ? 'danger' : ($user_role === 'warehouse' ? 'warning text-dark' : 'info') ?>">
+                                <?= ucfirst($user_role) ?>
+                            </span>
+                        </span>
+                        
                         <a href="logout.php" class="btn btn-outline-secondary me-2">
                             <i class="bi bi-arrow-left"></i> Logout
                         </a>
@@ -308,9 +429,14 @@ $vouchers_stmt->close();
                         <a href="colors.php" class="btn btn-outline-secondary">
                             <i class="bi bi-palette-fill"></i> Colors
                         </a>
-                        <a href="cashRecipt_index.php" class="btn btn-outline-secondary btn-warning" >
-                            </i> Cash Recipt
+                        <?php if (in_array($user_role, ['admin', 'warehouse'])): ?>
+                        <a href="warehouse.php" class="btn btn-outline-warning">
+                            <i class="bi bi-house-gear-fill"></i> Warehouse
                         </a>
+                        <a href="cashRecipt_index.php" class="btn btn-outline-secondary btn-warning" >
+                            <i class="bi bi-cash-stack"></i> Cash Recipt
+                        </a>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <hr>
@@ -336,397 +462,194 @@ $vouchers_stmt->close();
 
         <!-- Debug Info (Remove in production) -->
         <?php if (isset($_GET['debug'])): ?>
-            <div class="alert alert-warning">
-                <h5>Debug Information:</h5>
-                <p>Orders Count: <?= count($orders) ?></p>
-                <p>Order IDs: <?= implode(', ', array_keys($orders)) ?></p>
-                <p>Customer ID Filter: <?= $customer_id ?></p>
-                <p>Date Range: <?= $sdate ?> to <?= $edate ?></p>
-            </div>
+        <div class="alert alert-info">
+            <strong>Debug:</strong> CID=<?= $cid ?>, User=<?= htmlspecialchars($user_name) ?>, Role=<?= $user_role ?>
+        </div>
         <?php endif; ?>
 
-        <!-- Filter Form -->
-        <div class="card filter-card shadow-sm mb-4">
+        <!-- Filters -->
+        <div class="card filter-card mb-4">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0"><i class="bi bi-funnel-fill me-2"></i>Filters</h5>
+            </div>
             <div class="card-body">
-                <h5 class="card-title mb-3">
-                    <i class="bi bi-funnel"></i> Filter Orders
-                </h5>
-                <form method="GET" action="" id="filterForm">
-                    <div class="row g-3">
-                        <!-- Voucher No -->
-                        <div class="col-md-3">
-                            <label for="voucher_no" class="form-label">Voucher No</label>
-                            <select name="voucher_no" id="voucher_no" class="form-select select2-filter">
-                                <option value="">All Voucher Nos</option>
-                                <?php foreach ($voucher_nos as $vno): ?>
-                                    <option value="<?= htmlspecialchars($vno) ?>" 
-                                        <?= ($voucher_no == $vno) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($vno) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-
-                        <!-- Customer -->
-                        <div class="col-md-3">
-                            <label for="customer_id" class="form-label">Customer</label>
-                            <select name="customer_id" id="customer_id" class="form-select select2-filter">
-                                <option value="">All Customers</option>
-                                <?php foreach ($customers as $customer): ?>
-                                    <option value="<?= htmlspecialchars($customer['id']) ?>" 
-                                        <?= ($customer_id == $customer['id']) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($customer['name']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-
-                        <!-- Date Range -->
-                        <div class="col-md-4">
-                            <div class="row g-2">
-                                <div class="col-6">
-                                    <label for="sdate" class="form-label">Start Date</label>
-                                    <input type="date" name="sdate" id="sdate" class="form-control" 
-                                           value="<?= htmlspecialchars($sdate) ?>">
-                                </div>
-                                <div class="col-6">
-                                    <label for="edate" class="form-label">End Date</label>
-                                    <input type="date" name="edate" id="edate" class="form-control" 
-                                           value="<?= htmlspecialchars($edate) ?>">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Status -->
-                        <div class="col-md-2">
-                            <label for="status" class="form-label">Status</label>
-                            <select name="status" id="status" class="form-select">
-                                <option value="">All Status</option>
-                                <option value="pending" <?= $status_filter === 'pending' ? 'selected' : '' ?>>Pending</option>
-                                <option value="completed" <?= $status_filter === 'completed' ? 'selected' : '' ?>>Completed</option>
-                                <option value="rejected" <?= $status_filter === 'rejected' ? 'selected' : '' ?>>Rejected</option>
-                            </select>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div class="col-md-2 d-flex align-items-end">
-                            <div class="d-grid gap-2 w-100">
-                                <button type="submit" class="btn btn-success" id="filterBtn">
-                                    <i class="bi bi-search"></i> Filter
-                                </button>
-                                <a href="orders.php" class="btn btn-outline-secondary" id="resetBtn">
-                                    <i class="bi bi-arrow-clockwise"></i> Reset
-                                </a>
-                            </div>
-                        </div>
+                <form method="GET" class="row g-3">
+                    <div class="col-md-3">
+                        <label class="filter-label">Voucher No</label>
+                        <select name="voucher_no" class="form-select filter-select">
+                            <option value="">All Vouchers</option>
+                            <?php foreach ($vouchers as $v): ?>
+                                <option value="<?= htmlspecialchars($v) ?>" <?= $voucher_no === $v ? 'selected' : '' ?>>
+                                    #<?= htmlspecialchars($v) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="filter-label">Customer</label>
+                        <select name="customer_id" class="form-select filter-select">
+                            <option value="">All Customers</option>
+                            <?php foreach ($customers as $c): ?>
+                                <option value="<?= $c['id'] ?>" <?= $customer_id == $c['id'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($c['name']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="filter-label">From Date</label>
+                        <input type="date" name="sdate" class="form-control filter-select" value="<?= htmlspecialchars($sdate) ?>">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="filter-label">To Date</label>
+                        <input type="date" name="edate" class="form-control filter-select" value="<?= htmlspecialchars($edate) ?>">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="filter-label">Status</label>
+                        <select name="status" class="form-select filter-select">
+                            <option value="">All Status</option>
+                            <option value="pending" <?= $status_filter === 'pending' ? 'selected' : '' ?>>Pending</option>
+                            <option value="completed" <?= $status_filter === 'completed' ? 'selected' : '' ?>>Completed</option>
+                            <option value="rejected" <?= $status_filter === 'rejected' ? 'selected' : '' ?>>Rejected</option>
+                        </select>
+                    </div>
+                    <div class="col-12 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search me-1"></i> Filter
+                        </button>
+                        <a href="orders.php" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-clockwise me-1"></i> Reset
+                        </a>
                     </div>
                 </form>
             </div>
         </div>
 
         <!-- Orders Table -->
-        <div class="card shadow">
-            <div class="card-body">
-                <?php if (empty($orders)): ?>
-                    <div class="text-center py-5">
-                        <i class="bi bi-inbox" style="font-size: 3rem; color: #6c757d;"></i>
-                        <h4 class="mt-3">No orders found</h4>
-                        <p class="text-muted">No sale orders match your criteria.</p>
-                        <a href="create.php" class="btn btn-primary mt-2">
-                            <i class="bi bi-plus-circle"></i> Create Your Order
-                        </a>
-                        <a href="cashRecipt_index.php" class="btn btn-outline-secondary" >
-                                    <i class="bi bi-arrow-clockwise"></i> Cash Recipt
-                                </a>
-                    </div>
-                <?php else: ?>
-<div class="table-responsive">
-    <style>
-        .table-orders {
-            width: 100%;
-            border-collapse: collapse;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            font-size: 0.85rem;
-            background: white;
-        }
-        .table-orders th {
-            background: #eef2ff;
-            color: #1e293b;
-            padding: 12px 8px;
-            font-weight: 600;
-            font-size: 0.8rem;
-            border: 1px solid #d4dcec;
-            text-align: center;
-        }
-        .table-orders td {
-            padding: 10px 8px;
-            border: 1px solid #e2e8f0;
-            vertical-align: middle;
-            background: white;
-        }
-        .table-orders th:first-child,
-        .table-orders td:first-child,
-        .table-orders th:nth-child(2),
-        .table-orders td:nth-child(2),
-        .table-orders th:nth-child(3),
-        .table-orders td:nth-child(3) {
-            text-align: left;
-            padding-left: 12px;
-        }
-        .table-orders td:nth-child(n+4),
-        .table-orders th:nth-child(n+4) {
-            text-align: left;
-        }
-        .badge-order {
-            background: #2563eb;
-            color: white;
-            padding: 3px 10px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            display: inline-block;
-        }
-        .badge-total {
-            background: #10b981;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 30px;
-            font-weight: 600;
-            font-size: 0.75rem;
-            display: inline-block;
-            min-width: 45px;
-        }
-        .btn-order {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-size: 0.7rem;
-            text-decoration: none;
-            background: white;
-            border: 1px solid;
-        }
-        .btn-edit {
-            border-color: #3b82f6;
-            color: #2563eb;
-        }
-        .btn-view {
-            border-color: #ef4444;
-            color: #dc2626;
-        }
-        .order-group-separator {
-            border-top: 2px solid #94a3b8;
-        }
-        .order-group-first {
-            border-top: none;
-        }
-    </style>
-
-    <table class="table-orders">
-        <thead>
-            <tr>
-                <th>Order No</th>
-                <th>Date</th>
-                <th>Customer</th>
-                <th>Article</th>
-                <th>Cup</th>
-                <th>Color</th>
-                <th>Item Status</th>
-                <th>32</th><th>34</th><th>36</th><th>38</th><th>40</th><th>42</th>
-                <th>44</th><th>46</th><th>48</th><th>50</th>
-                <th>Total</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php 
-            $orderCount = 0;
-            foreach ($orders as $order): 
-                if (!empty($order['items'])): 
-                    $rowspan = count($order['items']);
-                    $orderCount++;
-                    $firstRowClass = ($orderCount === 1) ? 'order-group-first' : 'order-group-separator';
-                    
-                    // First row of this order (shows Order No, Date, Customer, Actions)
-                    $firstItem = $order['items'][0];
-                    ?>
-                    <tr class="<?= $firstRowClass ?>">
-                        <td rowspan="<?= $rowspan ?>" style="vertical-align: middle;">
-                            <span class="badge-order">#<?= htmlspecialchars($order['order_no']) ?></span>
-                        </td>
-                        <td rowspan="<?= $rowspan ?>" style="vertical-align: middle;">
-                            <?= htmlspecialchars(date('d/m/Y', strtotime($order['v_date']))) ?>
-                        </td>
-                        <td rowspan="<?= $rowspan ?>" style="vertical-align: middle;">
-                            <?= htmlspecialchars($order['customer_name'] ?? '-') ?>
-                        </td>
-                        <td style="text-align: left;"><?= htmlspecialchars($firstItem['item_name'] ?? 'N/A') ?></td>
-                        <td><?= htmlspecialchars($firstItem['cup'] ?? '-') ?></td>
-                        <td><?= htmlspecialchars($firstItem['color'] ?? '-') ?></td>
-                        <td>
-                            <?php
-                            $st = $firstItem['item_status'] ?? 'pending';
-                            $cls = $st === 'completed' ? 'bg-success' : ($st === 'rejected' ? 'bg-danger' : 'bg-warning text-dark');
-                            ?>
-                            <span class="badge <?= $cls ?>" style="font-size:0.7rem;"><?= ucfirst($st) ?></span>
-                        </td>
-                        <td><?= (int)($firstItem['size_32'] ?? 0) ?: '-' ?></td>
-                        <td><?= (int)($firstItem['size_34'] ?? 0) ?: '-' ?></td>
-                        <td><?= (int)($firstItem['size_36'] ?? 0) ?: '-' ?></td>
-                        <td><?= (int)($firstItem['size_38'] ?? 0) ?: '-' ?></td>
-                        <td><?= (int)($firstItem['size_40'] ?? 0) ?: '-' ?></td>
-                        <td><?= (int)($firstItem['size_42'] ?? 0) ?: '-' ?></td>
-                        <td><?= (int)($firstItem['size_44'] ?? 0) ?: '-' ?></td>
-                        <td><?= (int)($firstItem['size_46'] ?? 0) ?: '-' ?></td>
-                        <td><?= (int)($firstItem['size_48'] ?? 0) ?: '-' ?></td>
-                        <td><?= (int)($firstItem['size_50'] ?? 0) ?: '-' ?></td>
-                        <td><span class="badge-total"><?= (int)($firstItem['total_qty'] ?? 0) ?></span></td>
-                        <td rowspan="<?= $rowspan ?>" style="vertical-align: middle; white-space: nowrap;">
-                            <a href="edit_order.php?id=<?= $order['id'] ?>" class="btn-order btn-edit">✏️ Edit</a>
-                            <a href="print_recipt.php?id=<?= $order['id'] ?>" class="btn-order btn-view">👁️ View</a>
-                            <form method="POST" action="order_delete.php" style="display:inline" onsubmit="return confirm('Delete order #<?= $order['order_no'] ?>?')">
-                                <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
-                                <button type="submit" class="btn-order" style="border-color:#dc3545;color:#dc3545;">🗑️ Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                    
-                    <!-- Remaining items (2nd, 3rd, etc.) - no rowspan cells, just Item, Cup, Color, sizes -->
-                    <?php for ($i = 1; $i < $rowspan; $i++): 
-                        $item = $order['items'][$i];
-                    ?>
-                        <tr>
-                            <!-- No Order No, Date, Customer, Actions cells here -->
-                            <td style="text-align: left;"><?= htmlspecialchars($item['item_name'] ?? 'N/A') ?></td>
-                            <td><?= htmlspecialchars($item['cup'] ?? '-') ?></td>
-                            <td><?= htmlspecialchars($item['color'] ?? '-') ?></td>
-                            <td>
-                                <?php
-                                $st = $item['item_status'] ?? 'pending';
-                                $cls = $st === 'completed' ? 'bg-success' : ($st === 'rejected' ? 'bg-danger' : 'bg-warning text-dark');
-                                ?>
-                                <span class="badge <?= $cls ?>" style="font-size:0.7rem;"><?= ucfirst($st) ?></span>
-                            </td>
-                            <td><?= (int)($item['size_32'] ?? 0) ?: '-' ?></td>
-                            <td><?= (int)($item['size_34'] ?? 0) ?: '-' ?></td>
-                            <td><?= (int)($item['size_36'] ?? 0) ?: '-' ?></td>
-                            <td><?= (int)($item['size_38'] ?? 0) ?: '-' ?></td>
-                            <td><?= (int)($item['size_40'] ?? 0) ?: '-' ?></td>
-                            <td><?= (int)($item['size_42'] ?? 0) ?: '-' ?></td>
-                            <td><?= (int)($item['size_44'] ?? 0) ?: '-' ?></td>
-                            <td><?= (int)($item['size_46'] ?? 0) ?: '-' ?></td>
-                            <td><?= (int)($item['size_48'] ?? 0) ?: '-' ?></td>
-                            <td><?= (int)($item['size_50'] ?? 0) ?: '-' ?></td>
-                            <td><span class="badge-total"><?= (int)($item['total_qty'] ?? 0) ?></span></td>
-                        </tr>
-                    <?php endfor; ?>
-                    
-                <?php else: ?>
-                    <?php $orderCount++; ?>
-                <?php endif; ?>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
-</div>
-                    
-                    <!-- Summary -->
-                    <div class="row mt-4">
-                        <div class="col-md-12">
-                            <div class="alert alert-info">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <i class="bi bi-info-circle me-2"></i>
-                                        Showing <strong><?= count($orders) ?></strong> orders
-                                    </div>
-                                    <div>
-                                        Total Quantity: <strong>
-                                            <?= array_sum(array_column($orders, 'total_qty')) ?>
-                                        </strong>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                <?php endif; ?>
+        <div class="card main-card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 60px;">#</th>
+                                <th>Voucher No</th>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th style="width: 100px;">Qty</th>
+                                <th style="width: 130px;">Status</th>
+                                <th style="width: 180px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($orders)): ?>
+                                <tr>
+                                    <td colspan="7" class="text-center py-5">
+                                        <i class="bi bi-inbox-fill" style="font-size: 3rem; color: #dee2e6;"></i>
+                                        <p class="text-muted mt-2 mb-0">No orders found</p>
+                                    </td>
+                                </tr>
+                            <?php else: ?>
+                                <?php $counter = 1; ?>
+                                <?php foreach ($orders as $order): ?>
+                                    <tr class="order-row" onclick="window.location.href='edit_order.php?id=<?= $order['id'] ?>'">
+                                        <td><?= $counter++ ?></td>
+                                        <td>
+                                            <a href="edit_order.php?id=<?= $order['id'] ?>" class="voucher-link">
+                                                #<?= htmlspecialchars($order['order_no']) ?>
+                                            </a>
+                                        </td>
+                                        <td><?= date('d M Y', strtotime($order['v_date'])) ?></td>
+                                        <td><?= htmlspecialchars($order['customer_name'] ?? 'N/A') ?></td>
+                                        <td class="fw-bold"><?= $order['total_qty'] ?></td>
+                                        <td>
+                                            <?php 
+                                                $status_class = '';
+                                                switch ($order['status']) {
+                                                    case 'pending': $status_class = 'status-pending'; break;
+                                                    case 'completed': $status_class = 'status-completed'; break;
+                                                    case 'rejected': $status_class = 'status-rejected'; break;
+                                                }
+                                            ?>
+                                            <span class="status-badge <?= $status_class ?>">
+                                                <?= ucfirst($order['status']) ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-1 justify-content-center">
+                                                <a href="edit_order.php?id=<?= $order['id'] ?>" class="btn btn-sm btn-outline-primary btn-action" onclick="event.stopPropagation()">
+                                                    <i class="bi bi-pencil-fill"></i> Edit
+                                                </a>
+                                                <a href="print_recipt.php?id=<?= $order['id'] ?>" target="_blank" class="btn btn-sm btn-outline-info btn-action" onclick="event.stopPropagation()">
+                                                    <i class="bi bi-printer-fill"></i> Print
+                                                </a>
+                                                <?php if (in_array($user_role, ['admin', 'warehouse'])): ?>
+                                                <button type="button" class="btn btn-sm btn-outline-danger btn-action" onclick="event.stopPropagation(); confirmDelete(<?= $order['id'] ?>, '<?= htmlspecialchars($order['order_no']) ?>')">
+                                                    <i class="bi bi-trash-fill"></i> Delete
+                                                </button>
+                                                <?php endif; ?>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-<!-- Select2 JS -->
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-<script>
-    // Initialize Select2 for your dropdowns
-    $(document).ready(function() {
-        $('select[name="account_id"]').select2({
-            theme: 'bootstrap-5', // matches Bootstrap 5 styling
-            placeholder: 'Select Account',
-            allowClear: true
-        });
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>Confirm Delete</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete order <strong id="deleteOrderNo"></strong>?</p>
+                    <p class="text-danger small"><i class="bi bi-exclamation-circle me-1"></i>This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form method="POST" action="order_delete.php" style="display: inline;">
+                        <input type="hidden" name="order_id" id="deleteOrderId">
+                        <button type="submit" class="btn btn-danger">Delete Order</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        $('select[name="v_no"]').select2({
-            theme: 'bootstrap-5',
-            placeholder: 'Select Voucher No',
-            allowClear: true
-        });
-    });
-</script>
-
-    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    
+
     <script>
-    $(document).ready(function() {
-        // Initialize Select2 for filter dropdowns
-        $('.select2-filter').select2({
-            width: '100%',
-            placeholder: 'Select option',
-            allowClear: true
+        $(document).ready(function() {
+            // Initialize Select2 for better dropdowns
+            $('.filter-select').select2({
+                width: '100%',
+                placeholder: 'Select...'
+            });
+
+            // Delete confirmation
+            window.confirmDelete = function(orderId, orderNo) {
+                $('#deleteOrderId').val(orderId);
+                $('#deleteOrderNo').text('#' + orderNo);
+                $('#deleteModal').modal('show');
+            };
+
+            // Keyboard navigation for order rows
+            $('.order-row').on('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    $(this).click();
+                }
+            });
         });
-        
-        // Show loading overlay on form submit
-        $('#filterForm').on('submit', function() {
-            $('#loadingOverlay').show();
-        });
-        
-        // Show loading overlay on reset
-        $('#resetBtn').on('click', function() {
-            $('#loadingOverlay').show();
-        });
-        
-        // Date validation
-        $('#filterForm').on('submit', function(e) {
-            const sdate = $('#sdate').val();
-            const edate = $('#edate').val();
-            
-            if (sdate && edate && sdate > edate) {
-                e.preventDefault();
-                alert('Start date cannot be after end date.');
-                $('#loadingOverlay').hide();
-                return false;
-            }
-        });
-        
-        // Clear filters when reset button is clicked
-        $('#resetBtn').on('click', function(e) {
-            e.preventDefault();
-            window.location.href = 'orders.php';
-        });
-        
-        // Hide loading overlay when page is fully loaded
-        $(window).on('load', function() {
-            $('#loadingOverlay').hide();
-        });
-        
-        // Auto-hide loading overlay after 5 seconds (fallback)
-        setTimeout(function() {
-            $('#loadingOverlay').hide();
-        }, 5000);
-    });
     </script>
 </body>
 </html>
-<?php
-$conn->close();
-?>
