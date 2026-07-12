@@ -52,11 +52,10 @@ $status_filter = isset($_GET['status']) ? trim($_GET['status']) : '';
         c.name as customer_name
     FROM orders o
     LEFT JOIN customers c ON o.customer_id = c.id
-    WHERE 1=1
+    WHERE o.cid = ?
 ";
-
-$params = [];
-$param_types = "";
+$params = [$cid];
+$param_types = "i";
 
 // Add filters
 if (!empty($voucher_no)) {
@@ -184,10 +183,11 @@ if (!empty($orders)) {
 }
 
 // Fetch customers for filter dropdown
-$customers_stmt = $conn->prepare("SELECT id, name FROM customers ORDER BY name");
+$customers_stmt = $conn->prepare("SELECT id, name FROM customers WHERE cid = ? ORDER BY name");
 if ($customers_stmt === false) {
     die("Customers query preparation failed: " . $conn->error);
 }
+$customers_stmt->bind_param("i", $cid);
 if (!$customers_stmt->execute()) {
     die("Customers execute failed: " . $customers_stmt->error);
 }
@@ -202,10 +202,11 @@ while ($customer = $customers_result->fetch_assoc()) {
 $customers_stmt->close();
 
 // Fetch voucher numbers for filter dropdown
-$vouchers_stmt = $conn->prepare("SELECT DISTINCT order_no FROM orders ORDER BY order_no DESC");
+$vouchers_stmt = $conn->prepare("SELECT DISTINCT order_no FROM orders WHERE cid = ? ORDER BY order_no DESC");
 if ($vouchers_stmt === false) {
     die("Vouchers query preparation failed: " . $conn->error);
 }
+$vouchers_stmt->bind_param("i", $cid);
 if (!$vouchers_stmt->execute()) {
     die("Vouchers execute failed: " . $vouchers_stmt->error);
 }

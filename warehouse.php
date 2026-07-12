@@ -16,7 +16,8 @@ $user_role = $_SESSION['role'] ?? 'employee';
 
 // Fetch customers for filter
 $customers = [];
-$stmt = $conn->prepare("SELECT id, name FROM customers ORDER BY name");
+$stmt = $conn->prepare("SELECT id, name FROM customers WHERE cid = ? ORDER BY name");
+$stmt->bind_param("i", $cid);
 $stmt->execute();
 $result = $stmt->get_result();
 while ($row = $result->fetch_assoc()) {
@@ -26,7 +27,8 @@ $stmt->close();
 
 // Fetch voucher numbers for filter
 $vouchers = [];
-$stmt = $conn->prepare("SELECT DISTINCT order_no FROM orders ORDER BY order_no DESC");
+$stmt = $conn->prepare("SELECT DISTINCT order_no FROM orders WHERE cid = ? ORDER BY order_no DESC");
+$stmt->bind_param("i", $cid);
 $stmt->execute();
 $result = $stmt->get_result();
 while ($row = $result->fetch_assoc()) {
@@ -45,10 +47,10 @@ $selected_status = isset($_GET['status']) ? trim($_GET['status']) : '';
            c.name AS customer_name
     FROM orders o
     LEFT JOIN customers c ON o.customer_id = c.id
-    WHERE 1=1
+    WHERE o.cid = ?
 ";
-$params = [];
-$types = "";
+$params = [$cid];
+$types = "i";
 
 if ($selected_customer > 0) {
     $query .= " AND o.customer_id = ?";

@@ -1,27 +1,33 @@
 <?php
 
+session_start();
 require_once('db.php');
 
+if (!isset($_SESSION['cid'])) {
+    header('Content-Type: application/json');
+    echo json_encode([]);
+    exit;
+}
+
+$cid = $_SESSION['cid'];
 $search_term = $_GET['q'] ?? '';
 
-$sql = "SELECT id, name, mobile FROM customers";
-$params = [];
-$types = "";
+$sql = "SELECT id, name, mobile FROM customers WHERE cid = ?";
+$params = [$cid];
+$types = "i";
 
 if (!empty($search_term)) {
-    $sql .= " WHERE (name LIKE ? OR mobile LIKE ?)";
+    $sql .= " AND (name LIKE ? OR mobile LIKE ?)";
     $search_param = "%$search_term%";
-    $params = [$search_param, $search_param];
-    $types = "ss";
+    $params[] = $search_param;
+    $params[] = $search_param;
+    $types .= "ss";
 }
 
 $sql .= " ORDER BY name LIMIT 50";
 
 $stmt = $conn->prepare($sql);
-
-if (!empty($search_term) && $params) {
-    $stmt->bind_param($types, ...$params);
-}
+$stmt->bind_param($types, ...$params);
 
 $stmt->execute();
 $result = $stmt->get_result();
