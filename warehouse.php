@@ -12,6 +12,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['cid'])) {
 $cid = $_SESSION['cid'];
 $user_id = $_SESSION['user_id'];
 $name = $_SESSION['name'];
+$user_role = $_SESSION['role'] ?? 'employee';
 
 // Fetch customers for filter
 $customers = [];
@@ -64,6 +65,13 @@ if ($selected_voucher !== '') {
 if ($selected_status !== '') {
     $query .= " AND EXISTS (SELECT 1 FROM order_item_detail oid WHERE oid.order_id = o.id AND oid.item_status = ?)";
     $params[] = $selected_status;
+    $types .= "s";
+}
+
+// Role-based filtering: admin/warehouse see all, employees see only their orders
+if (!in_array($user_role, ['admin', 'warehouse'])) {
+    $query .= " AND o.preparedby = ?";
+    $params[] = $name;
     $types .= "s";
 }
 

@@ -28,6 +28,8 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['cid'])) {
 $cid = $_SESSION['cid'];
 $user_id = $_SESSION['user_id'];
 $is_admin = $_SESSION['is_admin'] ?? 0;
+$user_name = $_SESSION['name'];
+$user_role = $_SESSION['role'] ?? 'employee';
 
 $name = $_SESSION['name'];
 
@@ -89,6 +91,13 @@ if (!empty($sdate)) {
 if (!empty($status_filter)) {
     $query .= " AND EXISTS (SELECT 1 FROM order_item_detail oid WHERE oid.order_id = o.id AND oid.item_status = ?)";
     $params[] = $status_filter;
+    $param_types .= "s";
+}
+
+// Role-based filtering: admin/warehouse see all, employees see only their orders
+if (!in_array($user_role, ['admin', 'warehouse'])) {
+    $query .= " AND o.preparedby = ?";
+    $params[] = $user_name;
     $param_types .= "s";
 }
 
