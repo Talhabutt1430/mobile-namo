@@ -129,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             foreach ($rows as $row) {
                 $color = htmlspecialchars($row['color'] ?? '', ENT_QUOTES);
                 $cup = htmlspecialchars($row['cup'] ?? 'B', ENT_QUOTES);
-                $item_status = $row['item_status'] ?? 'pending';
+                $item_status = $order_status;
                 
                 // Get quantities for each size
                 $size_32 = filter_var($row['size_32'] ?? 0, FILTER_VALIDATE_INT);
@@ -575,15 +575,6 @@ function addRow(itemIdx) {
                 </select>
             </div>
 
-            <div class="col-md-3 col-lg-2">
-                <label class="form-label small">Status</label>
-                <select name="items[${itemIdx}][rows][${rowId}][item_status]" class="form-select form-select-sm">
-                    <option value="pending">Pending</option>
-                    <option value="completed">Completed</option>
-                    <option value="rejected">Rejected</option>
-                </select>
-            </div>
-            
             <div class="col-md-4 col-lg-6 d-flex align-items-end">
                 <button type="button" class="btn btn-sm btn-outline-danger w-100" 
                         onclick="removeRow(${itemIdx}, ${rowId})">

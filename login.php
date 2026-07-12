@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['mobile'] = $user['mobile'];
                 $_SESSION['name'] = $user['name'];
                 $_SESSION['cid'] = $user['cid'];
-                $_SESSION['role'] = $user['role'] ?? 'admin';
+                $_SESSION['role'] = $user['role'] ?? 'employee';  // was 'admin'
 
                 if ($_SESSION['role'] === 'warehouse') {
                     header("Location: warehouse.php");
