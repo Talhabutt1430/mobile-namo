@@ -513,7 +513,9 @@ function addItem() {
     $('#items-container').append(html);
     $(`#item-${itemIndex} .item-select`).select2({ 
         width: '100%',
-        placeholder: 'Select an article'
+        placeholder: 'Select an article',
+        dropdownAutoWidth: true,
+        dropdownParent: $(document.body)
     });
     $('#no-items-alert').addClass('d-none');
     itemIndex++;
@@ -740,7 +742,9 @@ $(document).ready(function() {
     $('.select2').select2({
         width: '100%',
         placeholder: 'Select an option',
-        allowClear: true
+        allowClear: true,
+        dropdownAutoWidth: true,
+        dropdownParent: $(document.body)
     });
     
     // Handle form submission
@@ -801,6 +805,8 @@ $(document).ready(function() {
         placeholder: 'Search and select customer...',
         allowClear: true,
         minimumInputLength: 1,
+        dropdownAutoWidth: true,
+        dropdownParent: $(document.body),
         ajax: {
             url: 'customers_search.php',
             dataType: 'json',
