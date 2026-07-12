@@ -188,7 +188,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             foreach ($rows as $row) {
                 $color = htmlspecialchars($row['color'] ?? '', ENT_QUOTES);
                 $cup = htmlspecialchars($row['cup'] ?? 'B', ENT_QUOTES);
-                $item_status = $row['item_status'] ?? 'pending';
+                $item_status = $order['status'];
                 
                 $size_32 = filter_var($row['size_32'] ?? 0, FILTER_VALIDATE_INT);
                 $size_34 = filter_var($row['size_34'] ?? 0, FILTER_VALIDATE_INT);
@@ -524,15 +524,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                     </select>
                                                 </div>
 
-                                                <div class="col-md-3 col-lg-2">
-                                                    <label class="form-label small">Status</label>
-                                                    <select name="items[<?= $idx ?>][rows][<?= $rowIdx ?>][item_status]" class="form-select form-select-sm">
-                                                        <option value="pending" <?= $row['item_status'] == 'pending' ? 'selected' : '' ?>>Pending</option>
-                                                        <option value="completed" <?= $row['item_status'] == 'completed' ? 'selected' : '' ?>>Completed</option>
-                                                        <option value="rejected" <?= $row['item_status'] == 'rejected' ? 'selected' : '' ?>>Rejected</option>
-                                                    </select>
-                                                </div>
-                                                
                                                 <div class="col-md-4 col-lg-6 d-flex align-items-end">
                                                     <button type="button" class="btn btn-sm btn-outline-danger w-100" 
                                                             onclick="removeRow(<?= $idx ?>, <?= $rowIdx ?>)">
@@ -763,22 +754,13 @@ function addRow(itemIdx) {
                 </select>
             </div>
 
-            <div class="col-md-3 col-lg-2">
-                <label class="form-label small">Status</label>
-                <select name="items[${itemIdx}][rows][${rowId}][item_status]" class="form-select form-select-sm">
-                    <option value="pending">Pending</option>
-                    <option value="completed">Completed</option>
-                    <option value="rejected">Rejected</option>
-                </select>
+<div class="col-md-4 col-lg-6 d-flex align-items-end">
+                    <button type="button" class="btn btn-sm btn-outline-danger w-100" 
+                            onclick="removeRow(${itemIdx}, ${rowId})">
+                        <i class="bi bi-x-circle-fill"></i> Remove Row
+                    </button>
+                </div>
             </div>
-            
-            <div class="col-md-4 col-lg-6 d-flex align-items-end">
-                <button type="button" class="btn btn-sm btn-outline-danger w-100" 
-                        onclick="removeRow(${itemIdx}, ${rowId})">
-                    <i class="bi bi-x-circle-fill"></i> Remove Row
-                </button>
-            </div>
-        </div>
         
         <div class="mb-2">
             <div class="d-flex justify-content-between align-items-center mb-2">
