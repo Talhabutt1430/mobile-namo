@@ -9,6 +9,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['cid'])) {
 
 $cid = $_SESSION['cid'];
 $name = $_SESSION['name'];
+$user_role = $_SESSION['role'] ?? 'employee';
 
 $success = '';
 $error = '';
@@ -48,9 +49,6 @@ while ($row = $result->fetch_assoc()) {
     $items[] = $row;
 }
 $stmt->close();
-?>
-<?php
-$user_role = $_SESSION['role'] ?? 'employee';
 ?>
 <!DOCTYPE html>
 <html lang="en">
