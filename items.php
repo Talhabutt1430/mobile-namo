@@ -49,6 +49,9 @@ while ($row = $result->fetch_assoc()) {
 }
 $stmt->close();
 ?>
+<?php
+$user_role = $_SESSION['role'] ?? 'employee';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -71,9 +74,11 @@ $stmt->close();
             <a href="orders.php" class="btn btn-outline-secondary btn-sm me-2">
                 <i class="bi bi-arrow-left"></i> Back to Orders
             </a>
+            <?php if (in_array($user_role, ['admin', 'warehouse'])): ?>
             <a href="warehouse.php" class="btn btn-outline-secondary btn-sm me-2">
                 <i class="bi bi-house-gear-fill"></i> Warehouse
             </a>
+            <?php endif; ?>
         </div>
     </div>
 
