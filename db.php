@@ -1,10 +1,12 @@
 <?php
 $host = 'localhost';
-$user = 'root';
-$pass = '';
 $db   = 'realerp_nano';
 
-// Auto-detect local vs production
+// Production credentials (cPanel)
+$user = 'realerp_probox';
+$pass = 'S@ftix786';
+
+// Override for local development
 if (strpos($_SERVER['HTTP_HOST'] ?? '', 'localhost') !== false || 
     strpos($_SERVER['HTTP_HOST'] ?? '', '127.0.0.1') !== false) {
     $user = 'root';
