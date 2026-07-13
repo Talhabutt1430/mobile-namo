@@ -274,16 +274,19 @@ if (!empty($orders)) {
                         </thead>
                         <tbody>
                             <?php foreach ($orders as $order): ?>
-                                <?php foreach ($order['items'] as $it): ?>
+                                <?php $itemCount = count($order['items']); $itemIndex = 0; ?>
+                                <?php foreach ($order['items'] as $it): $itemIndex++; ?>
                                 <tr>
                                     <td><strong>#<?= htmlspecialchars($order['order_no']) ?></strong></td>
                                     <td><?= htmlspecialchars(date('d/m/Y', strtotime($order['v_date']))) ?></td>
                                     <td><?= htmlspecialchars($order['customer_name'] ?? '-') ?></td>
-                                    <td>
+                                    <?php if ($itemIndex === 1): ?>
+                                    <td rowspan="<?= $itemCount ?>">
                                         <span class="badge badge-status status-<?= $order['status'] ?? 'pending' ?>">
                                             <?= ucfirst($order['status'] ?? 'pending') ?>
                                         </span>
                                     </td>
+                                    <?php endif; ?>
                                     <td><?= htmlspecialchars($it['item_name'] ?? '-') ?></td>
                                     <td><?= htmlspecialchars($it['cup'] ?? '-') ?></td>
                                     <td><?= htmlspecialchars($it['color'] ?? '-') ?></td>
