@@ -528,10 +528,10 @@ $vouchers_stmt->close();
                 <th>Order No</th>
                 <th>Date</th>
                 <th>Customer</th>
+                <th>Status</th>
                 <th>Article</th>
                 <th>Cup</th>
                 <th>Color</th>
-                <th>Item Status</th>
                 <th>32</th><th>34</th><th>36</th><th>38</th><th>40</th><th>42</th>
                 <th>44</th><th>46</th><th>48</th><th>50</th>
                 <th>Total</th>
@@ -560,16 +560,16 @@ $vouchers_stmt->close();
                         <td rowspan="<?= $rowspan ?>" style="vertical-align: middle;">
                             <?= htmlspecialchars($order['customer_name'] ?? '-') ?>
                         </td>
-                        <td style="text-align: left;"><?= htmlspecialchars($firstItem['item_name'] ?? 'N/A') ?></td>
-                        <td><?= htmlspecialchars($firstItem['cup'] ?? '-') ?></td>
-                        <td><?= htmlspecialchars($firstItem['color'] ?? '-') ?></td>
-                        <td>
+                        <td rowspan="<?= $rowspan ?>" style="vertical-align: middle;">
                             <?php
-                            $st = $firstItem['item_status'] ?? 'pending';
+                            $st = $order['status'] ?? 'pending';
                             $cls = $st === 'completed' ? 'bg-success' : ($st === 'rejected' ? 'bg-danger' : 'bg-warning text-dark');
                             ?>
                             <span class="badge <?= $cls ?>" style="font-size:0.7rem;"><?= ucfirst($st) ?></span>
                         </td>
+                        <td style="text-align: left;"><?= htmlspecialchars($firstItem['item_name'] ?? 'N/A') ?></td>
+                        <td><?= htmlspecialchars($firstItem['cup'] ?? '-') ?></td>
+                        <td><?= htmlspecialchars($firstItem['color'] ?? '-') ?></td>
                         <td><?= (int)($firstItem['size_32'] ?? 0) ?: '-' ?></td>
                         <td><?= (int)($firstItem['size_34'] ?? 0) ?: '-' ?></td>
                         <td><?= (int)($firstItem['size_36'] ?? 0) ?: '-' ?></td>
@@ -600,13 +600,6 @@ $vouchers_stmt->close();
                             <td style="text-align: left;"><?= htmlspecialchars($item['item_name'] ?? 'N/A') ?></td>
                             <td><?= htmlspecialchars($item['cup'] ?? '-') ?></td>
                             <td><?= htmlspecialchars($item['color'] ?? '-') ?></td>
-                            <td>
-                                <?php
-                                $st = $item['item_status'] ?? 'pending';
-                                $cls = $st === 'completed' ? 'bg-success' : ($st === 'rejected' ? 'bg-danger' : 'bg-warning text-dark');
-                                ?>
-                                <span class="badge <?= $cls ?>" style="font-size:0.7rem;"><?= ucfirst($st) ?></span>
-                            </td>
                             <td><?= (int)($item['size_32'] ?? 0) ?: '-' ?></td>
                             <td><?= (int)($item['size_34'] ?? 0) ?: '-' ?></td>
                             <td><?= (int)($item['size_36'] ?? 0) ?: '-' ?></td>
